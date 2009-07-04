@@ -17,6 +17,9 @@ $(document).ready(function() {
             event.preventDefault();
             show_page(edit_todo_page, { id: id });
         });
+        li.find(':input[type=checkbox], label').click(function(event) {
+            event.stopPropagation();
+        });
     }
     
     var todo_page = {
@@ -28,10 +31,18 @@ $(document).ready(function() {
         create_page_elements: function() {
             var page = $("<ul></ul>");
             for ( var i = 0; i < todos.length; i++ ) {
-                var li = $("<li></li>");
-                li.append($("<a></a>").text(todos[i]).prepend("<input type='checkbox' /> "));
+                var li = $("<li class='todo_item'></li>")
+                    .append($("<a></a>")
+                        .append("<input type='checkbox' /> ")
+                        .append($("<label></label>").text(todos[i])
+                    )
+                );
                 
                 add_todo_handlers(li, i);
+                
+                var todo_id = 'todo_checkbox_'+i;
+                li.find(':input').attr('id', todo_id);
+                li.find('label').attr('for', todo_id);
                 
                 page.append(li);
             }
