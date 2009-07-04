@@ -1,0 +1,7 @@
+.delete {
+    display: none;
+}
+.edit .delete {
+    display: block;
+    float: left;
+}

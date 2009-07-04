@@ -28,11 +28,16 @@ $(document).ready(function() {
         right_button_action: function() {
             show_page(new_todo_page);
         },
+        left_button_label: "Edit",
+        left_button_action: function() {
+            show_page(delete_page);
+        },
         create_page_elements: function() {
             var page = $("<ul></ul>");
             for ( var i = 0; i < todos.length; i++ ) {
                 var li = $("<li class='todo_item'></li>")
                     .append($("<a></a>")
+                        .append("<button class='delete'><span>x</span></button>")
                         .append("<input type='checkbox' /> ")
                         .append($("<label></label>").text(todos[i])
                     )
@@ -117,9 +122,32 @@ $(document).ready(function() {
         }
     };
     
+    var delete_page = {
+        page_title: todo_page.page_title,
+        right_button_label: todo_page.right_button_label,
+        right_button_action: todo_page.right_button_action,
+        left_button_label: "Done",
+        left_button_action: function() {
+            show_page(todo_page);
+        },
+        create_page_elements: function() {
+            var page = todo_page.create_page_elements().addClass('edit');
+            return page;
+        }
+    };
+    
     var toolbar = $('#toolbar');
     var current_page = null;
     var current_page_elements = null;
+    
+    var left_button = toolbar.find('a#leftButton');
+    left_button.hide();
+    left_button.click(function(event) {
+        event.preventDefault();
+        if ( current_page && current_page.left_button_action ) {
+            current_page.left_button_action();
+        }
+    });
     
     var right_button = toolbar.find('a#rightButton');
     right_button.click(function(event) {
@@ -152,6 +180,15 @@ $(document).ready(function() {
         current_page_elements.attr('selected',true);
         toolbar.after(current_page_elements);
         toolbar.find('h1').text(current_page.page_title);
+        
+        if ( current_page.left_button_label ) {
+            left_button.text(current_page.left_button_label);
+            left_button.show();
+        }
+        else {
+            left_button.hide();
+            left_button.text("");
+        }
         
         if ( current_page.right_button_label ) {
             right_button.text(current_page.right_button_label);
