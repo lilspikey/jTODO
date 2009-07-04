@@ -1,22 +1,56 @@
 $(document).ready(function() {
+    /* model */
+    var todos = [];
+    function add_todo(text) {
+        todos.push(text);
+    }
+    /* end model */
+    
     var todo_page = {
-        page_title: 'All TODO\'s',
+        page_title: 'TODO',
         right_button_label: "New",
         right_button_action: function() {
             show_page(new_todo_page);
         },
         create_page_elements: function() {
-            var todos = $("<ul></ul>");
-            todos.append("<li><input type='checkbox' /> TODO</li>")
-            return todos;
+            var page = $("<ul></ul>");
+            for ( var i = 0; i < todos.length; i++ ) {
+                var li = $("<li></li>").text(todos[i]);
+                li.prepend("<input type='checkbox' /> ");
+                page.append(li);
+            }
+            
+            return page;
         }
     };
     
     var new_todo_page = {
         prev_page: todo_page,
         page_title: 'New TODO',
+        right_button_label: "Add",
+        right_button_style: 'blue',
+        right_button_action: function() {
+            $('form.new_todo_page').submit();
+        },
         create_page_elements: function() {
-            var form = $("<div></div>");
+            var form = $("<form class='new_todo_page panel'>" +
+                         "<fieldset>" +
+                         "<div class='row'>" +
+                         "<label for='todo_entry'>TODO: </label>" +
+                         "<input type='text' id='todo_entry' name='todo_entry' />" +
+                         "</div>" +
+                         "</fieldset>" +
+                         "</form>");
+            
+            form.submit(function(event) {
+                event.preventDefault();
+                var todo = form.find(':input[name=todo_entry]').val();
+                if ( todo ) {
+                    add_todo(todo);
+                    show_page(todo_page);
+                }
+            });
+            
             return form;
         }
     };
@@ -59,6 +93,10 @@ $(document).ready(function() {
         
         if ( current_page.right_button_label ) {
             right_button.text(current_page.right_button_label);
+            right_button.removeClass('blueButton');
+            if ( current_page.right_button_style == 'blue' ) {
+                right_button.addClass('blueButton');
+            }
             right_button.show();
         }
         else {
@@ -74,6 +112,9 @@ $(document).ready(function() {
             back_button.hide();
             back_button.text("");
         }
+        
+        // set focus to first field in any form
+        current_page_elements.find(':input[type=text]:first').focus();
     }
     
     show_page(todo_page);
