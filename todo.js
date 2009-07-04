@@ -4,7 +4,20 @@ $(document).ready(function() {
     function add_todo(text) {
         todos.push(text);
     }
+    function get_todo_text(id) {
+        return todos[id];
+    }
+    function set_todo_text(id, text) {
+        todos[id]=text;
+    }
     /* end model */
+    
+    function add_todo_handlers(li, id) {
+        li.click(function(event) {
+            event.preventDefault();
+            show_page(edit_todo_page, { id: id });
+        });
+    }
     
     var todo_page = {
         page_title: 'TODO',
@@ -15,8 +28,11 @@ $(document).ready(function() {
         create_page_elements: function() {
             var page = $("<ul></ul>");
             for ( var i = 0; i < todos.length; i++ ) {
-                var li = $("<li></li>").text(todos[i]);
-                li.prepend("<input type='checkbox' /> ");
+                var li = $("<li></li>");
+                li.append($("<a></a>").text(todos[i]).prepend("<input type='checkbox' /> "));
+                
+                add_todo_handlers(li, i);
+                
                 page.append(li);
             }
             
@@ -55,6 +71,41 @@ $(document).ready(function() {
         }
     };
     
+    var edit_todo_page = {
+        prev_page: todo_page,
+        page_title: 'Edit TODO',
+        right_button_label: "Save",
+        right_button_style: 'blue',
+        right_button_action: function() {
+            $('form.edit_todo_page').submit();
+        },
+        create_page_elements: function(args) {
+            var id = args.id;
+            
+            var form = $("<form class='edit_todo_page panel'>" +
+                         "<fieldset>" +
+                         "<div class='row'>" +
+                         "<label for='todo_entry'>TODO: </label>" +
+                         "<input type='text' id='todo_entry' name='todo_entry' />" +
+                         "</div>" +
+                         "</fieldset>" +
+                         "</form>");
+            
+            form.find(':input[name=todo_entry]').val(get_todo_text(id));
+            
+            form.submit(function(event) {
+                event.preventDefault();
+                var todo = form.find(':input[name=todo_entry]').val();
+                if ( todo ) {
+                    set_todo_text(id, todo);
+                    show_page(todo_page);
+                }
+            });
+            
+            return form;
+        }
+    };
+    
     var toolbar = $('#toolbar');
     var current_page = null;
     var current_page_elements = null;
@@ -75,12 +126,12 @@ $(document).ready(function() {
         }
     });
     
-    function show_page(page) {
+    function show_page(page, args) {
         var prev_page = current_page;
         var prev_page_elements = current_page_elements;
         
         current_page = page;
-        current_page_elements=current_page.create_page_elements();
+        current_page_elements=current_page.create_page_elements(args);
         
         // TODO remove old page etc
         if ( prev_page ) {
