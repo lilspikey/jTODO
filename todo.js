@@ -13,11 +13,14 @@ $(document).ready(function() {
     /* end model */
     
     function add_todo_handlers(li, id) {
-        li.click(function(event) {
+        li.find('a').click(function(event) {
             event.preventDefault();
             show_page(edit_todo_page, { id: id });
         });
-        li.find(':input[type=checkbox], label').click(function(event) {
+        li.find(':input[type=checkbox]').click(function(event) {
+            event.stopPropagation();
+        });
+        li.find('label').click(function(event) {
             event.stopPropagation();
         });
     }
@@ -46,7 +49,7 @@ $(document).ready(function() {
                 add_todo_handlers(li, i);
                 
                 var todo_id = 'todo_checkbox_'+i;
-                li.find(':input').attr('id', todo_id);
+                li.find(':input[type=checkbox]').attr('id', todo_id);
                 li.find('label').attr('for', todo_id);
                 
                 page.append(li);
@@ -171,8 +174,7 @@ $(document).ready(function() {
         
         current_page = page;
         current_page_elements=current_page.create_page_elements(args);
-        
-        // TODO remove old page etc
+
         if ( prev_page ) {
             prev_page_elements.remove();
         }
