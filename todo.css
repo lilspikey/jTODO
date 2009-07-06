@@ -5,3 +5,7 @@
     display: block;
     float: left;
 }
+
+li.done {
+    color: #999;
+}

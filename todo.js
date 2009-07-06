@@ -41,8 +41,16 @@ $(document).ready(function() {
     }
     function set_todo_text(id, description, callback) {
         db.transaction(function(tx) {
-            // set order to be one after items that aren't one
             tx.executeSql('UPDATE todo SET description=? WHERE id=?', [description,id],
+                function(tx,results) {
+                    callback();
+                }
+            );
+        });
+    }
+    function set_todo_done(id, done, callback) {
+        db.transaction(function(tx) {
+            tx.executeSql('UPDATE todo SET done=? WHERE id=?', [done,id],
                 function(tx,results) {
                     callback();
                 }
@@ -58,16 +66,32 @@ $(document).ready(function() {
                 show_page(edit_todo_page, { todo: todo });
             });
         });
+        
+        function mark_done() {
+            var done = li.find(':input[type=checkbox]').attr('checked')? 1 : 0;
+            set_todo_done(id, done, function() {
+                if ( done ) {
+                    $('#todo_' + id).addClass('done');
+                }
+                else {
+                    $('#todo_' + id).removeClass('done');
+                }
+            });
+        }
+        
         li.find(':input[type=checkbox]').click(function(event) {
             event.stopPropagation();
+            mark_done();
         });
         li.find('label').click(function(event) {
             event.stopPropagation();
+            mark_done()
         });
     }
     
     var todo_page = {
         goto_page: goto_todo_page,
+        
         page_title: 'TODO',
         right_button_label: "New",
         right_button_action: function() {
@@ -83,12 +107,18 @@ $(document).ready(function() {
             for ( var i = 0; i < todos.length; i++ ) {
                 var todo = todos.item(i);
                 var li = $("<li class='todo_item'></li>")
+                    .attr('id', 'todo_' + todo.id)
                     .append($("<a></a>")
                         .append("<button class='delete'><span>x</span></button>")
                         .append("<input type='checkbox' /> ")
                         .append($("<label></label>").text(todo.description)
                     )
                 );
+                
+                if ( todo.done ) {
+                    li.addClass('done');
+                    li.find(':input[type=checkbox]').attr('checked', 'checked');
+                }
                 
                 add_todo_handlers(li, todo.id);
                 
