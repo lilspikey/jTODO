@@ -57,6 +57,15 @@ $(document).ready(function() {
             );
         });
     }
+    function delete_todo(id, callback) {
+        db.transaction(function(tx) {
+            tx.executeSql('DELETE FROM todo WHERE id=?', [id],
+                function(tx,results) {
+                    callback();
+                }
+            );
+        });
+    }
     /* end model */
     
     function add_todo_handlers(li, id) {
@@ -70,23 +79,33 @@ $(document).ready(function() {
         function mark_done() {
             var done = li.find(':input[type=checkbox]').attr('checked')? 1 : 0;
             set_todo_done(id, done, function() {
-                if ( done ) {
-                    $('#todo_' + id).addClass('done');
-                }
-                else {
-                    $('#todo_' + id).removeClass('done');
-                }
+                $('#todo_' + id).toggleClass('done', done);
             });
         }
         
         li.find(':input[type=checkbox]').click(function(event) {
             event.stopPropagation();
+        })
+        .change(function(event) {
             mark_done();
         });
         li.find('label').click(function(event) {
             event.stopPropagation();
-            mark_done()
         });
+        
+        
+        li.find('button.delete').click(function(event) {
+            event.stopPropagation();
+            li.toggleClass('deleting');
+        });
+        
+        li.find('button.delete_confirm').click(function(event) {
+            event.stopPropagation();
+            delete_todo(id, function() {
+                li.remove();
+            });
+        });
+        
     }
     
     var todo_page = {
@@ -98,9 +117,7 @@ $(document).ready(function() {
             show_page(new_todo_page);
         },
         left_button_label: "Edit",
-        left_button_action: function() {
-            show_page(delete_page);
-        },
+        left_button_action: goto_edit_all_page,
         create_page_elements: function(args) {
             var page = $("<ul></ul>");
             var todos = args.todos;
@@ -110,6 +127,7 @@ $(document).ready(function() {
                     .attr('id', 'todo_' + todo.id)
                     .append($("<a></a>")
                         .append("<button class='delete'><span>x</span></button>")
+                        .append("<button class='delete_confirm'>Delete</button>")
                         .append("<input type='checkbox' /> ")
                         .append($("<label></label>").text(todo.description)
                     )
@@ -202,16 +220,14 @@ $(document).ready(function() {
         }
     };
     
-    var delete_page = {
+    var edit_all_page = {
         page_title: todo_page.page_title,
         right_button_label: todo_page.right_button_label,
         right_button_action: todo_page.right_button_action,
         left_button_label: "Done",
-        left_button_action: function() {
-            show_page(todo_page);
-        },
-        create_page_elements: function() {
-            var page = todo_page.create_page_elements().addClass('edit');
+        left_button_action: goto_todo_page,
+        create_page_elements: function(args) {
+            var page = todo_page.create_page_elements(args).addClass('edit');
             return page;
         }
     };
@@ -298,6 +314,12 @@ $(document).ready(function() {
     function goto_todo_page() {
         read_todos(function(todos) {
             show_page(todo_page, { todos: todos });
+        });
+    }
+    
+    function goto_edit_all_page() {
+        read_todos(function(todos) {
+            show_page(edit_all_page, { todos: todos });
         });
     }
     

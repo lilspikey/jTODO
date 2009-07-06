@@ -1,11 +1,42 @@
-.delete {
+.delete,
+.delete_confirm {
     display: none;
+}
+.delete_confirm {
+    float: right;
 }
 .edit .delete {
     display: block;
     float: left;
 }
 
+body > ul.edit > li > a {
+    background: none;
+}
+ul.edit a[selected],
+ul.edit a:active {
+    background-color: #194fdb !important;
+    background-image: url(iui/selection.png) !important;
+    background-repeat: repeat-x;
+    background-position: left top;
+}
+
 li.done {
     color: #999;
+}
+
+button.delete {
+    
+}
+
+button.delete span {
+    display: none;
+}
+
+li.deleting button.delete {
+    
+}
+
+li.deleting button.delete_confirm {
+    display: block;
 }
