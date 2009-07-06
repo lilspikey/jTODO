@@ -7,7 +7,6 @@
 }
 .edit .delete {
     display: block;
-    float: left;
 }
 
 body > ul.edit > li > a {
@@ -26,7 +25,12 @@ li.done {
 }
 
 button.delete {
-    
+    width: 29px;
+    height: 29px;
+    margin-right: 0.5em;
+    float: left;
+    border: none;
+    background: url(delete.png) no-repeat center center;
 }
 
 button.delete span {
@@ -34,7 +38,7 @@ button.delete span {
 }
 
 li.deleting button.delete {
-    
+    background: url(deleting.png) no-repeat center center;
 }
 
 li.deleting button.delete_confirm {
