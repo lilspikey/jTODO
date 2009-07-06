@@ -1,21 +1,62 @@
 $(document).ready(function() {
     /* model */
-    var todos = [];
-    function add_todo(text) {
-        todos.push(text);
+    var db = openDatabase('jTODO', '1.0' /*version*/, 'jTODO', 65536 /*max size*/);
+    db.transaction(function (tx) {
+        // initialise database
+        tx.executeSql('CREATE TABLE todo (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, description TEXT NOT NULL DEFAULT "", todo_order INTEGER NOT NULL DEFAULT 0, done INTEGER NOT NULL DEFAULT 0 );');
+    });
+    
+    function read_todos(callback) {
+        db.transaction(function (tx) {
+            tx.executeSql('SELECT * FROM todo ORDER BY todo_order ASC', [],
+                function(tx, results) {
+                    callback(results.rows);
+                });
+        });
     }
-    function get_todo_text(id) {
-        return todos[id];
+    
+    function add_todo(description, callback) {
+        db.transaction(function(tx) {
+            // set order to be one after items that aren't one
+            tx.executeSql('SELECT MAX(todo_order) AS next_order FROM todo WHERE done=0', [],
+                function(tx,results) {
+                    var order = results.rows.item(0)['next_order'] + 1;
+                    tx.executeSql('INSERT INTO todo (description,todo_order) VALUES(?,?)', [description,order],
+                        function(tx,results) {
+                            callback(results.insertId);
+                        });
+                }
+            );
+        });
     }
-    function set_todo_text(id, text) {
-        todos[id]=text;
+    function get_todo(id, callback) {
+        db.transaction(function (tx) {
+            tx.executeSql('SELECT * FROM todo WHERE id = ?', [id],
+                function(tx, results) {
+                    var rows = results.rows;
+                    var todo = (rows.length > 0)? rows.item(0) : null;
+                    callback(todo);
+                });
+        });
+    }
+    function set_todo_text(id, description, callback) {
+        db.transaction(function(tx) {
+            // set order to be one after items that aren't one
+            tx.executeSql('UPDATE todo SET description=? WHERE id=?', [description,id],
+                function(tx,results) {
+                    callback();
+                }
+            );
+        });
     }
     /* end model */
     
     function add_todo_handlers(li, id) {
         li.find('a').click(function(event) {
             event.preventDefault();
-            show_page(edit_todo_page, { id: id });
+            get_todo(id, function(todo) {
+                show_page(edit_todo_page, { todo: todo });
+            });
         });
         li.find(':input[type=checkbox]').click(function(event) {
             event.stopPropagation();
@@ -26,6 +67,7 @@ $(document).ready(function() {
     }
     
     var todo_page = {
+        goto_page: goto_todo_page,
         page_title: 'TODO',
         right_button_label: "New",
         right_button_action: function() {
@@ -35,20 +77,22 @@ $(document).ready(function() {
         left_button_action: function() {
             show_page(delete_page);
         },
-        create_page_elements: function() {
+        create_page_elements: function(args) {
             var page = $("<ul></ul>");
+            var todos = args.todos;
             for ( var i = 0; i < todos.length; i++ ) {
+                var todo = todos.item(i);
                 var li = $("<li class='todo_item'></li>")
                     .append($("<a></a>")
                         .append("<button class='delete'><span>x</span></button>")
                         .append("<input type='checkbox' /> ")
-                        .append($("<label></label>").text(todos[i])
+                        .append($("<label></label>").text(todo.description)
                     )
                 );
                 
-                add_todo_handlers(li, i);
+                add_todo_handlers(li, todo.id);
                 
-                var todo_id = 'todo_checkbox_'+i;
+                var todo_id = 'todo_checkbox_'+todo.id;
                 li.find(':input[type=checkbox]').attr('id', todo_id);
                 li.find('label').attr('for', todo_id);
                 
@@ -81,8 +125,9 @@ $(document).ready(function() {
                 event.preventDefault();
                 var todo = form.find(':input[name=todo_entry]').val();
                 if ( todo ) {
-                    add_todo(todo);
-                    show_page(todo_page);
+                    add_todo(todo, function(todo_id) {
+                        goto_todo_page();
+                    });
                 }
             });
             
@@ -99,7 +144,8 @@ $(document).ready(function() {
             $('form.edit_todo_page').submit();
         },
         create_page_elements: function(args) {
-            var id = args.id;
+            var id = args.todo.id;
+            var description = args.todo.description;
             
             var form = $("<form class='edit_todo_page panel'>" +
                          "<fieldset>" +
@@ -110,14 +156,15 @@ $(document).ready(function() {
                          "</fieldset>" +
                          "</form>");
             
-            form.find(':input[name=todo_entry]').val(get_todo_text(id));
+            form.find(':input[name=todo_entry]').val(description);
             
             form.submit(function(event) {
                 event.preventDefault();
                 var todo = form.find(':input[name=todo_entry]').val();
                 if ( todo ) {
-                    set_todo_text(id, todo);
-                    show_page(todo_page);
+                    set_todo_text(id, todo, function() {
+                        goto_todo_page();
+                    });
                 }
             });
             
@@ -164,7 +211,7 @@ $(document).ready(function() {
     back_button.click(function(event) {
         event.preventDefault();
         if ( current_page && current_page.prev_page ) {
-            show_page(current_page.prev_page);
+            current_page.prev_page.goto_page();
         }
     });
     
@@ -218,5 +265,11 @@ $(document).ready(function() {
         current_page_elements.find(':input[type=text]:first').focus();
     }
     
-    show_page(todo_page);
+    function goto_todo_page() {
+        read_todos(function(todos) {
+            show_page(todo_page, { todos: todos });
+        });
+    }
+    
+    goto_todo_page();
 });
