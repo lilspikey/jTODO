@@ -1,7 +1,11 @@
 $(document).ready(function() {
     /* model */
     if ( !window.openDatabase ) {
-        alert("sorry this browser does not support offline databases");
+        $('#toolbar').after(
+            $("<div></div>")
+                .attr('selected', true)
+                .text("sorry this browser does not support offline databases")
+        );
         return;
     }
     var db = openDatabase('jTODO', '1.0' /*version*/, 'jTODO', 65536 /*max size*/);
