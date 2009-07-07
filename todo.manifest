@@ -1,8 +1,35 @@
 CACHE MANIFEST
 
-# version 1.0.1
+# version 1.0.2
 
-iui/
-css/
-js/
-img/
+iui/backButton.png
+iui/blueButton.png
+iui/cancel.png
+iui/grayButton.png
+iui/iui-logo-touch-icon.png
+iui/iui.css
+iui/iui.js
+iui/iuix.css
+iui/iuix.js
+iui/listArrow.png
+iui/listArrowSel.png
+iui/listGroup.png
+iui/loading.gif
+iui/pinstripes.png
+iui/selection.png
+iui/thumb.png
+iui/toggle.png
+iui/toggleOn.png
+iui/toolButton.png
+iui/toolbar.png
+iui/whiteButton.png
+
+css/todo.css
+
+js/jquery-1.3.2.min.js
+js/todo.js
+
+img/delete.png
+img/deleting.png
+img/redButton.png
+
