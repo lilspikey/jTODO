@@ -76,7 +76,7 @@ $(document).ready(function() {
     /* end model */
     
     function add_todo_handlers(li, id) {
-        li.find('a').click(function(event) {
+        li.find('button.view_todo').click(function(event) {
             event.preventDefault();
             get_todo(id, function(todo) {
                 show_page(edit_todo_page, { todo: todo });
@@ -90,14 +90,8 @@ $(document).ready(function() {
             });
         }
         
-        li.find(':input[type=checkbox]').click(function(event) {
-            event.stopPropagation();
-        })
-        .change(function(event) {
+        li.change(function(event) {
             mark_done();
-        });
-        li.find('label').click(function(event) {
-            event.stopPropagation();
         });
         
         
@@ -132,12 +126,11 @@ $(document).ready(function() {
                 var todo = todos.item(i);
                 var li = $("<li class='todo_item'></li>")
                     .attr('id', 'todo_' + todo.id)
-                    .append($("<a></a>")
                         .append("<button class='delete'><span>x</span></button>")
                         .append("<button class='delete_confirm'>Delete</button>")
+                        .append("<button class='view_todo'><span>&gt;</spa></button>")
                         .append("<input type='checkbox' /> ")
                         .append($("<label></label>").text(todo.description)
-                    )
                 );
                 
                 if ( todo.done ) {

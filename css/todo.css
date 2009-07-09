@@ -26,6 +26,9 @@ button.delete_confirm {
 .edit .delete {
     display: block;
 }
+.edit .view_todo {
+    display: none;
+}
 
 body > ul.edit > li > a {
     background: none;
@@ -44,6 +47,18 @@ li.done {
 }
 li.done label {
     text-decoration: line-through;
+}
+
+button.view_todo {
+    display: block;
+    float: right;
+    width: 29px;
+    height: 29px;
+    border: none;
+    background: url(../iui/listArrow.png) no-repeat center center;
+}
+button.view_todo span {
+    display: none;
 }
 
 button.delete {
