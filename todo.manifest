@@ -1,6 +1,6 @@
 CACHE MANIFEST
 
-# version 1.0.2.8
+# version 1.0.2.25
 
 iui/backButton.png
 iui/blueButton.png
@@ -27,9 +27,11 @@ iui/whiteButton.png
 css/todo.css
 
 js/jquery-1.3.2.min.js
+js/jquery-ui-1.7.2.custom.min.js
 js/todo.js
 
 img/delete.png
 img/deleting.png
 img/redButton.png
+img/handle.png
 

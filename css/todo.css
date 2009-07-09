@@ -1,5 +1,6 @@
 .delete,
-.delete_confirm {
+.delete_confirm,
+.handle {
     display: none;
 }
 button.delete_confirm {
@@ -23,10 +24,22 @@ button.delete_confirm {
     -webkit-border-image: url(../img/redButton.png) 0 5 0 5;
     
 }
-.edit .delete {
+.edit .delete,
+.edit .handle {
     display: block;
 }
 .edit .view_todo {
+    display: none;
+}
+
+.edit .handle {
+    float: right;
+    width: 32px;
+    height: 29px;
+    border: none;
+    background: url(../img/handle.png) no-repeat center left;
+}
+.edit .handle span {
     display: none;
 }
 
@@ -80,4 +93,7 @@ li.deleting button.delete {
 
 li.deleting button.delete_confirm {
     display: block;
+}
+li.deleting .handle {
+    display: none;
 }

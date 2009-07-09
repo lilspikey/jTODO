@@ -129,6 +129,7 @@ $(document).ready(function() {
                         .append("<button class='delete'><span>x</span></button>")
                         .append("<button class='delete_confirm'>Delete</button>")
                         .append("<button class='view_todo'><span>&gt;</spa></button>")
+                        .append("<div class='handle'><span>=</spa></div>")
                         .append("<input type='checkbox' /> ")
                         .append($("<label></label>").text(todo.description)
                 );
@@ -228,6 +229,19 @@ $(document).ready(function() {
         left_button_action: goto_todo_page,
         create_page_elements: function(args) {
             var page = todo_page.create_page_elements(args).addClass('edit');
+            page.sortable({
+                axis: 'y',
+                handle: '.handle',
+                update: function(){
+                    db.transaction(function(tx) {
+                        $('.todo_item').each(function(i,item) {
+                            var id = $(item).find(':input[type=checkbox]').attr('id');
+                            id = Number(id.substring('todo_checkbox_'.length));
+                            tx.executeSql('UPDATE todo SET todo_order=? WHERE id=?', [i, id]);
+                        });
+                    });
+                }
+            });
             return page;
         }
     };
@@ -306,6 +320,8 @@ $(document).ready(function() {
             back_button.hide();
             back_button.text("");
         }
+        
+        
         
         // set focus to first field in any form
         current_page_elements.find(':input[type=text]:first').focus();
