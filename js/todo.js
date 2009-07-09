@@ -25,8 +25,7 @@ $(document).ready(function() {
     
     function add_todo(description, callback) {
         db.transaction(function(tx) {
-            // set order to be one after items that aren't one
-            tx.executeSql('SELECT MAX(todo_order) AS next_order FROM todo WHERE done=0', [],
+            tx.executeSql('SELECT MAX(todo_order) AS next_order FROM todo', [],
                 function(tx,results) {
                     var order = results.rows.item(0)['next_order'] + 1;
                     tx.executeSql('INSERT INTO todo (description,todo_order) VALUES(?,?)', [description,order],

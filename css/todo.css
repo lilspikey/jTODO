@@ -42,6 +42,9 @@ ul.edit a:active {
 li.done {
     color: #999;
 }
+li.done label {
+    text-decoration: line-through;
+}
 
 button.delete {
     width: 29px;
