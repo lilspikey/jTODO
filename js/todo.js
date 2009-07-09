@@ -75,6 +75,52 @@ $(document).ready(function() {
     }
     /* end model */
     
+    /* touch handlers */
+    function handleTouchEvent(event) {
+        /* from http://jasonkuhn.net/mobile/jqui/js/jquery.iphoneui.js
+         but changed a bit*/
+        
+        var touches = event.changedTouches,
+        var first = touches[0],
+        var type = '';
+        
+        
+        // only want to do this for the drag handles
+        if ( !first.target || !first.target.className || first.target.className.indexOf("handle") == -1 ) {
+            return;
+        }
+        
+        switch(event.type) {
+            case 'touchstart':
+                type = 'mousedown';
+                break;
+                
+            case 'touchmove':
+                type = 'mousemove';
+                break;        
+                
+            case 'touchend':
+                type = 'mouseup';
+                break;
+            
+            default:
+                return;
+        }
+        
+        var simulatedEvent = document.createEvent('MouseEvent');
+        simulatedEvent.initMouseEvent(type, true, true, window, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0/*left*/, null);
+        
+        first.target.dispatchEvent(simulatedEvent);
+        
+        if ( event.type == 'touchmove' ) {
+            event.preventDefault();
+        }
+    }
+    document.addEventListener("touchstart", handleTouchEvent, false);
+    document.addEventListener("touchmove", handleTouchEvent, false);
+    document.addEventListener("touchend", handleTouchEvent, false);
+    /* end touch handlers */
+    
     function add_todo_handlers(li, id) {
         li.find('button.view_todo').click(function(event) {
             event.preventDefault();
@@ -229,6 +275,30 @@ $(document).ready(function() {
         left_button_action: goto_todo_page,
         create_page_elements: function(args) {
             var page = todo_page.create_page_elements(args).addClass('edit');
+            /*page.find('.handle')
+            .bind("touchstart", function(event) {
+                $('h1').text('start');
+                //alert("here");
+                $(event.target).trigger('mousedown', event);
+                
+                event.preventDefault();
+            })
+            .bind("touchmove", function(event) {
+                $('h1').text('move');
+                //alert("here");
+                $(event.target).trigger('mousemove', event);
+                event.preventDefault();
+            })
+            .bind("touchend", function(event) {
+                $('h1').text('end');
+                //alert("here");
+                $(event.target).trigger('mouseup', event);
+                event.preventDefault();
+            })
+            .bind("mousemove", function() {
+                alert("here");
+            });*/
+            
             page.sortable({
                 axis: 'y',
                 handle: '.handle',
