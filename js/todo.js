@@ -80,8 +80,8 @@ $(document).ready(function() {
         /* from http://jasonkuhn.net/mobile/jqui/js/jquery.iphoneui.js
          but changed a bit*/
         
-        var touches = event.changedTouches,
-        var first = touches[0],
+        var touches = event.changedTouches;
+        var first = touches[0];
         var type = '';
         
         
